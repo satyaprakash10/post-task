@@ -6,27 +6,57 @@ Vue.use(Vuex)
 
 export default new Vuex.Store({
   state: {
-    formData: {
-      title: '',
-      description: '',
-      user_id: '',
-    },
     posts: [],
   },
 
-  mutations: {},
+  getters: {
+    getAllPosts: (state) => state.posts,
+  },
+
+  mutations: {
+    add_post(state, data) {
+      state.posts.push(data)
+      localStorage.setItem('posts', JSON.stringify(state.posts))
+    },
+    set_posts(state) {
+      state.posts = JSON.parse(localStorage.getItem('posts'))
+    },
+    add_comment(state, data) {
+      localStorage.setItem('posts', JSON.stringify(data))
+    },
+  },
 
   actions: {
-    fetchPosts() {
-      axios.get('/posts').then((response) => {
-        this.posts = response.data
+    fetchPosts({ commit }) {
+      commit('set_posts')
+    },
+    addPost({ commit }, data) {
+      return new Promise((resolve, reject) => {
+        axios
+          .post('https://jsonplaceholder.typicode.com/posts', data)
+          .then((response) => {
+            commit('add_post', response.data)
+            resolve(response)
+          })
+          .catch((err) => {
+            reject(err)
+          })
       })
     },
-    addPost() {
-      axios.post('/post/1', this.formData).then((response) => {
-        console.log(response)
-        this.formData.push(response.data)
-        window.location.reload()
+    addPostComment({ commit }, data, id) {
+      return new Promise((resolve, reject) => {
+        axios
+          .post(
+            `https://jsonplaceholder.typicode.com/posts/${id}/comments`,
+            data
+          )
+          .then((response) => {
+            commit('add_comment', response.data)
+            resolve(response)
+          })
+          .catch((err) => {
+            reject(err)
+          })
       })
     },
   },

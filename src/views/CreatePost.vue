@@ -84,9 +84,7 @@ export default {
     ...mapActions(['addPost']),
 
     submitPost() {
-      let data = { ...this.formData }
-      console.log(data, 'data')
-      this.addPost(data)
+      this.addPost(this.formData)
     },
   },
 }
